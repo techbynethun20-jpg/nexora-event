@@ -1,0 +1,2377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXORA EVENTS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'display': ['Orbitron', 'sans-serif'],
+            'body': ['Space Grotesk', 'sans-serif'],
+          },
+          colors: {
+            'nexora': {
+              'black': '#050505',
+              'dark': '#0a0a0a',
+              'crimson': '#dc143c',
+              'neon': '#ff1a1a',
+              'glass': 'rgba(255,255,255,0.03)',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #050505;
+      --bg-secondary: #0a0a0a;
+      --fg: #ffffff;
+      --fg-muted: #888888;
+      --accent: #dc143c;
+      --accent-neon: #ff1a1a;
+      --accent-glow: rgba(220, 20, 60, 0.5);
+      --card: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --glass: rgba(255, 255, 255, 0.05);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom Cursor */
+    .cursor {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 10000;
+      transition: transform 0.15s ease, background 0.15s ease;
+      mix-blend-mode: difference;
+    }
+
+    .cursor-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-neon);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 10001;
+    }
+
+    .cursor.hover {
+      transform: scale(2);
+      background: var(--accent-glow);
+    }
+
+    /* Scroll Progress */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-neon));
+      z-index: 9999;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 20px var(--accent-neon);
+    }
+
+    /* Loading Screen */
+    .loader {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .loader-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2rem, 8vw, 4rem);
+      font-weight: 900;
+      letter-spacing: 0.3em;
+      color: var(--fg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .loader-logo::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      animation: logoShine 1.5s ease-in-out infinite;
+    }
+
+    @keyframes logoShine {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    .loader-bar {
+      width: 200px;
+      height: 2px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .loader-progress {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-neon));
+      width: 0%;
+      animation: loadProgress 2s ease-out forwards;
+    }
+
+    @keyframes loadProgress {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    .loader-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.5em;
+      color: var(--fg-muted);
+      text-transform: uppercase;
+    }
+
+    /* Background Grid */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 100px 100px;
+      pointer-events: none;
+      z-index: 0;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+    }
+
+    /* Ambient Lights */
+    .ambient-light {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(150px);
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .ambient-light-1 {
+      background: var(--accent);
+      top: -200px;
+      right: -200px;
+      animation: ambientFloat1 20s ease-in-out infinite;
+    }
+
+    .ambient-light-2 {
+      background: #1a0a0a;
+      bottom: -200px;
+      left: -200px;
+      animation: ambientFloat2 25s ease-in-out infinite;
+    }
+
+    @keyframes ambientFloat1 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-100px, 100px); }
+    }
+
+    @keyframes ambientFloat2 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(100px, -100px); }
+    }
+
+    /* Mouse Follow Glow */
+    .mouse-glow {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 2;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 20px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .nav.scrolled {
+      background: rgba(5, 5, 5, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 15px 50px;
+    }
+
+    .nav-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      color: var(--fg);
+      text-decoration: none;
+      position: relative;
+    }
+
+    .nav-logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+      text-decoration: none;
+      position: relative;
+      padding: 5px 0;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--fg);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-cta {
+      padding: 12px 30px;
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--fg);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .nav-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: -1;
+    }
+
+    .nav-cta:hover::before {
+      transform: translateX(0);
+    }
+
+    .nav-cta:hover {
+      color: var(--fg);
+      box-shadow: 0 0 30px var(--accent-glow);
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      padding: 100px 20px;
+      overflow: hidden;
+    }
+
+    .hero-particles {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      max-width: 1200px;
+    }
+
+    .hero-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 30px;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 1s ease forwards 0.5s;
+    }
+
+    .hero-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.5rem, 10vw, 7rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      margin-bottom: 30px;
+      opacity: 0;
+      transform: translateY(50px);
+      animation: fadeInUp 1s ease forwards 0.7s;
+    }
+
+    .hero-title .line {
+      display: block;
+    }
+
+    .hero-title .accent {
+      color: var(--accent);
+      position: relative;
+    }
+
+    .hero-title .accent::after {
+      content: '';
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-neon));
+      box-shadow: 0 0 30px var(--accent-neon);
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      font-weight: 300;
+      color: var(--fg-muted);
+      max-width: 600px;
+      margin: 0 auto 50px;
+      line-height: 1.8;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 1s ease forwards 0.9s;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 1s ease forwards 1.1s;
+    }
+
+    .btn-primary {
+      padding: 18px 50px;
+      background: linear-gradient(135deg, var(--accent), #b01030);
+      border: none;
+      color: var(--fg);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent-neon), var(--accent));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px rgba(220, 20, 60, 0.4);
+    }
+
+    .btn-primary:hover::before {
+      opacity: 1;
+    }
+
+    .btn-primary span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-secondary {
+      padding: 18px 50px;
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--fg);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      background: rgba(220, 20, 60, 0.1);
+      box-shadow: 0 0 30px rgba(220, 20, 60, 0.2);
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Stats Section */
+    .stats {
+      padding: 100px 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .stats-grid {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(20px);
+      padding: 50px 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-10px);
+      border-color: rgba(220, 20, 60, 0.3);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .stat-number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900;
+      color: var(--fg);
+      margin-bottom: 10px;
+    }
+
+    .stat-number span {
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+    }
+
+    /* Events Section */
+    .events {
+      padding: 150px 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto 100px;
+    }
+
+    .section-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .section-subtitle {
+      font-size: 1rem;
+      color: var(--fg-muted);
+      line-height: 1.8;
+    }
+
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .event-card {
+      position: relative;
+      height: 500px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .event-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 30%, rgba(5, 5, 5, 0.9) 100%);
+      z-index: 1;
+    }
+
+    .event-card-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .event-card:hover .event-card-bg {
+      transform: scale(1.1);
+    }
+
+    .event-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 30px 60px rgba(220, 20, 60, 0.2);
+    }
+
+    .event-card-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 40px;
+      z-index: 2;
+      transform: translateY(20px);
+      transition: transform 0.5s ease;
+    }
+
+    .event-card:hover .event-card-content {
+      transform: translateY(0);
+    }
+
+    .event-card-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 15px;
+    }
+
+    .event-card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .event-card-desc {
+      font-size: 0.9rem;
+      color: var(--fg-muted);
+      line-height: 1.6;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease 0.1s;
+    }
+
+    .event-card:hover .event-card-desc {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Horizontal Gallery */
+    .gallery {
+      padding: 100px 0;
+      position: relative;
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    .gallery-track {
+      display: flex;
+      gap: 30px;
+      animation: scroll 40s linear infinite;
+    }
+
+    .gallery-item {
+      flex-shrink: 0;
+      width: 400px;
+      height: 300px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.7;
+      transition: all 0.5s ease;
+    }
+
+    .gallery-item:hover img {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Features Section */
+    .features {
+      padding: 150px 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(20px);
+      padding: 50px 40px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.5s ease;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(220, 20, 60, 0.1), transparent);
+      transition: top 0.5s ease;
+    }
+
+    .feature-card:hover::before {
+      top: 0;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(220, 20, 60, 0.3);
+      transform: translateY(-5px);
+    }
+
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      border: 1px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: var(--accent);
+    }
+
+    .feature-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-desc {
+      font-size: 0.9rem;
+      color: var(--fg-muted);
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Pricing Section */
+    .pricing {
+      padding: 150px 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    .pricing-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(20px);
+      padding: 50px 40px;
+      position: relative;
+      transition: all 0.5s ease;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--accent);
+      transform: scale(1.05);
+      z-index: 2;
+    }
+
+    .pricing-card.featured::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      background: linear-gradient(135deg, var(--accent), transparent, var(--accent));
+      z-index: -1;
+      opacity: 0.5;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .pricing-card.featured:hover {
+      transform: scale(1.05) translateY(-10px);
+    }
+
+    .pricing-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .pricing-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .pricing-price {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      font-weight: 900;
+      margin-bottom: 30px;
+    }
+
+    .pricing-price span {
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--fg-muted);
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 40px;
+    }
+
+    .pricing-features li {
+      padding: 15px 0;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 0.9rem;
+      color: var(--fg-muted);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .pricing-features li::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    .pricing-btn {
+      width: 100%;
+      padding: 18px;
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--fg);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .pricing-card.featured .pricing-btn {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .pricing-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 10px 30px rgba(220, 20, 60, 0.3);
+    }
+
+    /* Testimonials */
+    .testimonials {
+      padding: 150px 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .testimonials-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .testimonial-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(20px);
+      padding: 80px;
+      text-align: center;
+      position: relative;
+    }
+
+    .testimonial-quote {
+      font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+      font-weight: 300;
+      line-height: 1.8;
+      margin-bottom: 40px;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .testimonial-role {
+      font-size: 0.85rem;
+      color: var(--fg-muted);
+    }
+
+    .testimonial-nav {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 40px;
+    }
+
+    .testimonial-dot {
+      width: 12px;
+      height: 12px;
+      border: 1px solid var(--card-border);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .testimonial-dot.active {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* Timeline */
+    .timeline {
+      padding: 150px 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .timeline-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .timeline-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--card-border);
+      transform: translateX(-50%);
+    }
+
+    .timeline-item {
+      display: flex;
+      justify-content: flex-end;
+      padding-right: 60px;
+      position: relative;
+      margin-bottom: 80px;
+      width: 50%;
+    }
+
+    .timeline-item:nth-child(even) {
+      justify-content: flex-start;
+      padding-right: 0;
+      padding-left: 60px;
+      margin-left: 50%;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: var(--accent);
+      border-radius: 50%;
+      right: -8px;
+      top: 0;
+      box-shadow: 0 0 20px var(--accent-neon);
+    }
+
+    .timeline-item:nth-child(even) .timeline-dot {
+      left: -8px;
+      right: auto;
+    }
+
+    .timeline-content {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      padding: 40px;
+      max-width: 400px;
+    }
+
+    .timeline-date {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      margin-bottom: 15px;
+    }
+
+    .timeline-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .timeline-desc {
+      font-size: 0.9rem;
+      color: var(--fg-muted);
+      line-height: 1.7;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 100px 20px 50px;
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 60px;
+      max-width: 1400px;
+      margin: 0 auto 80px;
+    }
+
+    .footer-brand {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      margin-bottom: 20px;
+    }
+
+    .footer-brand span {
+      color: var(--accent);
+    }
+
+    .footer-desc {
+      font-size: 0.9rem;
+      color: var(--fg-muted);
+      line-height: 1.8;
+      max-width: 300px;
+    }
+
+    .footer-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 15px;
+    }
+
+    .footer-links a {
+      color: var(--fg-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent);
+    }
+
+    .footer-bottom {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding-top: 30px;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--fg-muted);
+    }
+
+    /* AI Assistant */
+    .ai-assistant {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 9999;
+    }
+
+    .ai-trigger {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #b01030);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 40px rgba(220, 20, 60, 0.4);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .ai-trigger::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), transparent, var(--accent));
+      z-index: -1;
+      animation: aiPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes aiPulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    .ai-trigger:hover {
+      transform: scale(1.1);
+    }
+
+    .ai-trigger svg {
+      width: 32px;
+      height: 32px;
+      fill: white;
+    }
+
+    .ai-panel {
+      position: absolute;
+      bottom: 90px;
+      right: 0;
+      width: 400px;
+      height: 600px;
+      background: rgba(10, 10, 10, 0.95);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(30px);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: aiOpen 0.5s ease;
+    }
+
+    .ai-panel.open {
+      display: flex;
+    }
+
+    @keyframes aiOpen {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .ai-header {
+      padding: 25px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ai-header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .ai-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #b01030);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .ai-avatar::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+    }
+
+    .ai-avatar svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--accent);
+      position: relative;
+      z-index: 1;
+    }
+
+    .ai-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .ai-status {
+      font-size: 0.75rem;
+      color: var(--accent);
+    }
+
+    .ai-close {
+      width: 35px;
+      height: 35px;
+      background: transparent;
+      border: 1px solid var(--card-border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .ai-close:hover {
+      border-color: var(--accent);
+    }
+
+    .ai-close svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--fg);
+    }
+
+    .ai-messages {
+      flex: 1;
+      padding: 25px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .ai-message {
+      max-width: 85%;
+      padding: 15px 20px;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      animation: messageIn 0.3s ease;
+    }
+
+    @keyframes messageIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .ai-message.bot {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      align-self: flex-start;
+      border-bottom-left-radius: 5px;
+    }
+
+    .ai-message.user {
+      background: linear-gradient(135deg, var(--accent), #b01030);
+      align-self: flex-end;
+      border-bottom-right-radius: 5px;
+    }
+
+    .ai-typing {
+      display: flex;
+      gap: 5px;
+      padding: 15px 20px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 15px;
+      border-bottom-left-radius: 5px;
+      align-self: flex-start;
+      max-width: 85%;
+    }
+
+    .ai-typing span {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: typing 1.4s ease-in-out infinite;
+    }
+
+    .ai-typing span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .ai-typing span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-8px); opacity: 1; }
+    }
+
+    .ai-input-area {
+      padding: 20px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .ai-input-container {
+      display: flex;
+      gap: 10px;
+    }
+
+    .ai-input {
+      flex: 1;
+      padding: 15px 20px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      color: var(--fg);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .ai-input::placeholder {
+      color: var(--fg-muted);
+    }
+
+    .ai-input:focus {
+      border-color: var(--accent);
+    }
+
+    .ai-send {
+      width: 50px;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .ai-send:hover {
+      background: var(--accent-neon);
+    }
+
+    .ai-send svg {
+      width: 18px;
+      height: 18px;
+      fill: white;
+    }
+
+    .ai-quick-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .ai-quick-btn {
+      padding: 10px 15px;
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--fg-muted);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .ai-quick-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Reveal Animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(50px);
+      transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Mobile Menu */
+    .mobile-menu-btn {
+      display: none;
+      width: 40px;
+      height: 40px;
+      background: transparent;
+      border: 1px solid var(--card-border);
+      cursor: pointer;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .mobile-menu-btn span {
+      width: 20px;
+      height: 1px;
+      background: var(--fg);
+      transition: all 0.3s ease;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .events-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+      }
+
+      .pricing-card.featured {
+        transform: none;
+      }
+
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .timeline-item,
+      .timeline-item:nth-child(even) {
+        width: 100%;
+        padding-left: 60px;
+        padding-right: 0;
+        margin-left: 0;
+      }
+
+      .timeline-line {
+        left: 0;
+      }
+
+      .timeline-dot,
+      .timeline-item:nth-child(even) .timeline-dot {
+        left: -8px;
+        right: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        cursor: auto;
+      }
+
+      .cursor,
+      .cursor-dot {
+        display: none;
+      }
+
+      .nav {
+        padding: 15px 20px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .nav-cta {
+        display: none;
+      }
+
+      .mobile-menu-btn {
+        display: flex;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .events-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-title {
+        font-size: clamp(2rem, 8vw, 4rem);
+      }
+
+      .ai-panel {
+        width: calc(100vw - 40px);
+        height: 70vh;
+        right: -10px;
+      }
+
+      .testimonial-card {
+        padding: 40px 25px;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      .gallery-track {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loader" id="loader">
+    <div class="loader-logo">NEXORA</div>
+    <div class="loader-bar">
+      <div class="loader-progress"></div>
+    </div>
+    <div class="loader-text">Initializing Experience</div>
+  </div>
+
+  <!-- Custom Cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <!-- Scroll Progress -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- Background Elements -->
+  <div class="bg-grid"></div>
+  <div class="ambient-light ambient-light-1"></div>
+  <div class="ambient-light ambient-light-2"></div>
+  <div class="mouse-glow" id="mouseGlow"></div>
+
+  <!-- Navigation -->
+  <nav class="nav" id="nav">
+    <a href="#" class="nav-logo">NEXORA<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="#events">Events</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="nav-cta magnetic">Get Started</button>
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <canvas class="hero-particles" id="particles"></canvas>
+    <div class="hero-content">
+      <div class="hero-label">Welcome to the Future</div>
+      <h1 class="hero-title">
+        <span class="line">THE FUTURE OF</span>
+        <span class="line"><span class="accent">EVENT</span> EXPERIENCES</span>
+      </h1>
+      <p class="hero-subtitle">AI-powered event management platform crafted for unforgettable digital experiences. Transform your vision into extraordinary moments.</p>
+      <div class="hero-buttons">
+        <button class="btn-primary magnetic"><span>Explore Events</span></button>
+        <button class="btn-secondary magnetic">Watch Demo</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats">
+    <div class="stats-grid">
+      <div class="stat-card reveal">
+        <div class="stat-number"><span id="stat1">0</span>+</div>
+        <div class="stat-label">Events Hosted</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-number"><span id="stat2">0</span>M+</div>
+        <div class="stat-label">Attendees Worldwide</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-number"><span id="stat3">0</span>+</div>
+        <div class="stat-label">Global Partners</div>
+      </div>
+      <div class="stat-card reveal">
+        <div class="stat-number"><span id="stat4">0</span>%</div>
+        <div class="stat-label">Success Rate</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Events Section -->
+  <section class="events" id="events">
+    <div class="section-header reveal">
+      <div class="section-label">Our Expertise</div>
+      <h2 class="section-title">Immersive Event Categories</h2>
+      <p class="section-subtitle">From intimate gatherings to massive festivals, we craft experiences that transcend expectations.</p>
+    </div>
+    <div class="events-grid">
+      <div class="event-card reveal" data-tilt>
+        <div class="event-card-bg" style="background: linear-gradient(135deg, #1a0a0a 0%, #2a0a0a 100%);"></div>
+        <div class="event-card-content">
+          <div class="event-card-label">Enterprise</div>
+          <h3 class="event-card-title">Corporate Events</h3>
+          <p class="event-card-desc">Transform your business gatherings into powerful brand experiences that inspire and engage.</p>
+        </div>
+      </div>
+      <div class="event-card reveal" data-tilt>
+        <div class="event-card-bg" style="background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2a 100%);"></div>
+        <div class="event-card-content">
+          <div class="event-card-label">Entertainment</div>
+          <h3 class="event-card-title">Music Festivals</h3>
+          <p class="event-card-desc">Create legendary festival experiences that captivate thousands and echo through generations.</p>
+        </div>
+      </div>
+      <div class="event-card reveal" data-tilt>
+        <div class="event-card-bg" style="background: linear-gradient(135deg, #1a1a0a 0%, #2a1a0a 100%);"></div>
+        <div class="event-card-content">
+          <div class="event-card-label">Celebration</div>
+          <h3 class="event-card-title">Luxury Weddings</h3>
+          <p class="event-card-desc">Crafting fairy-tale celebrations where every detail reflects your unique love story.</p>
+        </div>
+      </div>
+      <div class="event-card reveal" data-tilt>
+        <div class="event-card-bg" style="background: linear-gradient(135deg, #0a1a1a 0%, #0a2a2a 100%);"></div>
+        <div class="event-card-content">
+          <div class="event-card-label">Innovation</div>
+          <h3 class="event-card-title">Tech Conferences</h3>
+          <p class="event-card-desc">Where breakthrough ideas meet cutting-edge execution for tomorrow's innovators.</p>
+        </div>
+      </div>
+      <div class="event-card reveal" data-tilt>
+        <div class="event-card-bg" style="background: linear-gradient(135deg, #2a0a1a 0%, #1a0a2a 100%);"></div>
+        <div class="event-card-content">
+          <div class="event-card-label">Style</div>
+          <h3 class="event-card-title">Fashion Shows</h3>
+          <p class="event-card-desc">Runway spectacles that blend art, fashion, and technology into unforgettable moments.</p>
+        </div>
+      </div>
+      <div class="event-card reveal" data-tilt>
+        <div class="event-card-bg" style="background: linear-gradient(135deg, #1a0a0a 0%, #0a1a0a 100%);"></div>
+        <div class="event-card-content">
+          <div class="event-card-label">Exclusive</div>
+          <h3 class="event-card-title">Private VIP Events</h3>
+          <p class="event-card-desc">Ultra-exclusive experiences for the world's most discerning clientele.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery Section -->
+  <section class="gallery">
+    <div class="gallery-track" id="galleryTrack">
+      <div class="gallery-item"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0505,#2a0a0a);display:flex;align-items:center;justify-content:center;font-family:Orbitron;color:#dc143c;font-size:0.8rem;letter-spacing:0.2em;">CORPORATE GALA</div></div>
+      <div class="gallery-item"><div style="width:100%;height:100%;background:linear-gradient(135deg,#05051a,#0a0a2a);display:flex;align-items:center;justify-content:center;font-family:Orbitron;color:#dc143c;font-size:0.8rem;letter-spacing:0.2em;">NEON FESTIVAL</div></div>
+      <div class="gallery-item"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a05,#2a2a0a);display:flex;align-items:center;justify-content:center;font-family:Orbitron;color:#dc143c;font-size:0.8rem;letter-spacing:0.2em;">LUXURY WEDDING</div></div>
+      <div class="gallery-item"><div style="width:100%;height:100%;background:linear-gradient(135deg,#051a1a,#0a2a2a);display:flex;align-items:center;justify-content:center;font-family:Orbitron;color:#dc143c;font-size:0.8rem;letter-spacing:0.2em;">TECH SUMMIT</div></div>
+      <div class="gallery-item"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a051a,#2a0a2a);display:flex;align-items:center;justify-content:center;font-family:Orbitron;color:#dc143c;font-size:0.8rem;letter-spacing:0.2em;">FASHION WEEK</div></div>
+      <div class="gallery-item"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0505,#0a1a0a);display:flex;align-items:center;justify-content:center;font-family:Orbitron;color:#dc143c;font-size:0.8rem;letter-spacing:0.2em;">VIP EXPERIENCE</div></div>
+      <div class="gallery-item"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0505,#2a0a0a);display:flex;align-items:center;justify-content:center;font-family:Orbitron;color:#dc143c;font-size:0.8rem;letter-spacing:0.2em;">CORPORATE GALA</div></div>
+      <div class="gallery-item"><div style="width:100%;height:100%;background:linear-gradient(135deg,#05051a,#0a0a2a);display:flex;align-items:center;justify-content:center;font-family:Orbitron;color:#dc143c;font-size:0.8rem;letter-spacing:0.2em;">NEON FESTIVAL</div></div>
+      <div class="gallery-item"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a05,#2a2a0a);display:flex;align-items:center;justify-content:center;font-family:Orbitron;color:#dc143c;font-size:0.8rem;letter-spacing:0.2em;">LUXURY WEDDING</div></div>
+      <div class="gallery-item"><div style="width:100%;height:100%;background:linear-gradient(135deg,#051a1a,#0a2a2a);display:flex;align-items:center;justify-content:center;font-family:Orbitron;color:#dc143c;font-size:0.8rem;letter-spacing:0.2em;">TECH SUMMIT</div></div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="section-header reveal">
+      <div class="section-label">Why Choose Us</div>
+      <h2 class="section-title">Powered by Innovation</h2>
+      <p class="section-subtitle">Our AI-driven platform combines cutting-edge technology with creative excellence.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
+          </svg>
+        </div>
+        <h3 class="feature-title">AI-Powered Planning</h3>
+        <p class="feature-desc">Our intelligent algorithms optimize every aspect of your event, from scheduling to resource allocation.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+          </svg>
+        </div>
+        <h3 class="feature-title">Global Network</h3>
+        <p class="feature-desc">Access our curated network of venues, vendors, and talent across 150+ countries worldwide.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.148 2.148A12.061 12.061 0 0116.5 7.605" />
+          </svg>
+        </div>
+        <h3 class="feature-title">Real-Time Analytics</h3>
+        <p class="feature-desc">Monitor engagement, attendance, and success metrics with our advanced dashboard.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+        </div>
+        <h3 class="feature-title">Secure Platform</h3>
+        <p class="feature-desc">Enterprise-grade security ensuring your data and events are protected at all times.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+          </svg>
+        </div>
+        <h3 class="feature-title">Mobile Integration</h3>
+        <p class="feature-desc">Manage your events on-the-go with our powerful mobile app and instant notifications.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+          </svg>
+        </div>
+        <h3 class="feature-title">Creative Solutions</h3>
+        <p class="feature-desc">Our award-winning design team brings your vision to life with stunning aesthetics.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing" id="pricing">
+    <div class="section-header reveal">
+      <div class="section-label">Investment</div>
+      <h2 class="section-title">Transparent Pricing</h2>
+      <p class="section-subtitle">Choose the perfect plan for your event needs.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card reveal">
+        <div class="pricing-label">Starter</div>
+        <h3 class="pricing-title">Essential</h3>
+        <div class="pricing-price">LKR 95,000 <span>/ event</span></div>
+        <ul class="pricing-features">
+          <li>Up to 100 guests</li>
+          <li>Basic event planning</li>
+          <li>Standard venue selection</li>
+          <li>Email support</li>
+          <li>Basic analytics</li>
+        </ul>
+        <button class="pricing-btn magnetic">Get Started</button>
+      </div>
+      <div class="pricing-card featured reveal">
+        <div class="pricing-label">Popular</div>
+        <h3 class="pricing-title">Professional</h3>
+        <div class="pricing-price">LKR 150,000 <span>/ event</span></div>
+        <ul class="pricing-features">
+          <li>Up to 500 guests</li>
+          <li>Full event planning</li>
+          <li>Premium venue access</li>
+          <li>Priority support</li>
+          <li>Advanced analytics</li>
+          <li>Custom branding</li>
+        </ul>
+        <button class="pricing-btn magnetic">Get Started</button>
+      </div>
+      <div class="pricing-card reveal">
+        <div class="pricing-label">Enterprise</div>
+        <h3 class="pricing-title">Elite</h3>
+        <div class="pricing-price">LKR 125,000 <span>/ event</span></div>
+        <ul class="pricing-features">
+          <li>Unlimited guests</li>
+          <li>White-glove service</li>
+          <li>Global venue network</li>
+          <li>24/7 dedicated support</li>
+          <li>Real-time analytics</li>
+          <li>Full customization</li>
+          <li>AI recommendations</li>
+        </ul>
+        <button class="pricing-btn magnetic">Contact Sales</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials">
+    <div class="section-header reveal">
+      <div class="section-label">Testimonials</div>
+      <h2 class="section-title">Client Success Stories</h2>
+    </div>
+    <div class="testimonials-container reveal">
+      <div class="testimonial-card" id="testimonialCard">
+        <p class="testimonial-quote" id="testimonialQuote">"NEXORA transformed our annual conference into an unforgettable experience. The AI-driven insights helped us achieve 40% higher engagement than ever before."</p>
+        <p class="testimonial-author" id="testimonialAuthor">Sarah Chen</p>
+        <p class="testimonial-role" id="testimonialRole">VP of Marketing, TechCorp Global</p>
+      </div>
+      <div class="testimonial-nav">
+        <button class="testimonial-dot active" data-index="0"></button>
+        <button class="testimonial-dot" data-index="1"></button>
+        <button class="testimonial-dot" data-index="2"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Timeline Section -->
+  <section class="timeline">
+    <div class="section-header reveal">
+      <div class="section-label">Our Journey</div>
+      <h2 class="section-title">Milestones</h2>
+    </div>
+    <div class="timeline-container">
+      <div class="timeline-line"></div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-date">2020</div>
+          <h3 class="timeline-title">The Beginning</h3>
+          <p class="timeline-desc">NEXORA was founded with a vision to revolutionize the event industry through AI technology.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-date">2021</div>
+          <h3 class="timeline-title">Global Expansion</h3>
+          <p class="timeline-desc">Expanded to 50+ countries, hosting over 1,000 events in our first year.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-date">2022</div>
+          <h3 class="timeline-title">AI Integration</h3>
+          <p class="timeline-desc">Launched our proprietary AI engine, achieving 95% client satisfaction rates.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-date">2024</div>
+          <h3 class="timeline-title">Industry Leader</h3>
+          <p class="timeline-desc">Recognized as the world's leading AI-powered event management platform.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" id="contact">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">NEXORA<span>.</span></div>
+        <p class="footer-desc">Transforming visions into extraordinary experiences. The future of event management is here.</p>
+      </div>
+      <div>
+        <h4 class="footer-title">Platform</h4>
+        <ul class="footer-links">
+          <li><a href="#">Features</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Case Studies</a></li>
+          <li><a href="#">API</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-title">Company</h4>
+        <ul class="footer-links">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Partners</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-title">Connect</h4>
+        <ul class="footer-links">
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Support</a></li>
+          <li><a href="#">Newsletter</a></li>
+          <li><a href="#">Events</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>2026 NEXORA EVENTS. All rights reserved.</p>
+      <p>Crafted with precision</p>
+    </div>
+  </footer>
+
+  <!-- AI Assistant -->
+  <div class="ai-assistant">
+    <div class="ai-panel" id="aiPanel">
+      <div class="ai-header">
+        <div class="ai-header-left">
+          <div class="ai-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="ai-name">NEXORA AI</div>
+            <div class="ai-status">Online</div>
+          </div>
+        </div>
+        <button class="ai-close" id="aiClose">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="ai-messages" id="aiMessages">
+        <div class="ai-message bot">Hello! I'm NEXORA AI, your intelligent event assistant. How can I help you create an extraordinary event experience today?</div>
+      </div>
+      <div class="ai-input-area">
+        <div class="ai-input-container">
+          <input type="text" class="ai-input" id="aiInput" placeholder="Type your message...">
+          <button class="ai-send" id="aiSend">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="ai-quick-actions">
+          <button class="ai-quick-btn" data-query="pricing">Pricing Info</button>
+          <button class="ai-quick-btn" data-query="venues">Venue Options</button>
+          <button class="ai-quick-btn" data-query="corporate">Corporate Events</button>
+        </div>
+      </div>
+    </div>
+    <button class="ai-trigger" id="aiTrigger">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+      </svg>
+    </button>
+  </div>
+
+  <script>
+    // Initialize variables first
+    const loader = document.getElementById('loader');
+    const cursor = document.getElementById('cursor');
+    const cursorDot = document.getElementById('cursorDot');
+    const mouseGlow = document.getElementById('mouseGlow');
+    const scrollProgress = document.getElementById('scrollProgress');
+    const nav = document.getElementById('nav');
+    const aiTrigger = document.getElementById('aiTrigger');
+    const aiPanel = document.getElementById('aiPanel');
+    const aiClose = document.getElementById('aiClose');
+    const aiInput = document.getElementById('aiInput');
+    const aiSend = document.getElementById('aiSend');
+    const aiMessages = document.getElementById('aiMessages');
+    const particlesCanvas = document.getElementById('particles');
+    const ctx = particlesCanvas.getContext('2d');
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let particles = [];
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Loading Screen
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        loader.style.opacity = '0';
+        loader.style.pointerEvents = 'none';
+        setTimeout(() => {
+          loader.style.display = 'none';
+        }, 500);
+      }, 2000);
+    });
+
+    // Custom Cursor
+    if (!prefersReducedMotion) {
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        cursor.style.left = mouseX - 10 + 'px';
+        cursor.style.top = mouseY - 10 + 'px';
+        cursorDot.style.left = mouseX - 3 + 'px';
+        cursorDot.style.top = mouseY - 3 + 'px';
+        mouseGlow.style.left = mouseX + 'px';
+        mouseGlow.style.top = mouseY + 'px';
+        mouseGlow.style.opacity = '0.15';
+      });
+
+      document.querySelectorAll('a, button, .event-card, .stat-card, .feature-card, .pricing-card').forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+      });
+    }
+
+    // Scroll Progress
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = (scrollTop / docHeight) * 100;
+      scrollProgress.style.width = scrollPercent + '%';
+
+      // Nav scroll effect
+      if (scrollTop > 100) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+
+    // Particle System
+    function initParticles() {
+      particlesCanvas.width = window.innerWidth;
+      particlesCanvas.height = window.innerHeight;
+
+      particles = [];
+      const particleCount = Math.min(80, Math.floor(window.innerWidth / 15));
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * particlesCanvas.width,
+          y: Math.random() * particlesCanvas.height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          size: Math.max(1, Math.random() * 2),
+          opacity: Math.random() * 0.5 + 0.2
+        });
+      }
+    }
+
+    function animateParticles() {
+      if (prefersReducedMotion) return;
+
+      ctx.clearRect(0, 0, particlesCanvas.width, particlesCanvas.height);
+
+      particles.forEach((particle, i) => {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+
+        if (particle.x < 0 || particle.x > particlesCanvas.width) particle.vx *= -1;
+        if (particle.y < 0 || particle.y > particlesCanvas.height) particle.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(220, 20, 60, ${particle.opacity})`;
+        ctx.fill();
+
+        // Connect nearby particles
+        particles.slice(i + 1).forEach(other => {
+          const dx = particle.x - other.x;
+          const dy = particle.y - other.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(particle.x, particle.y);
+            ctx.lineTo(other.x, other.y);
+            ctx.strokeStyle = `rgba(220, 20, 60, ${0.1 * (1 - dist / 150)})`;
+            ctx.stroke();
+          }
+        });
+      });
+
+      requestAnimationFrame(animateParticles);
+    }
+
+    initParticles();
+    animateParticles();
+
+    window.addEventListener('resize', initParticles);
+
+    // Counter Animation
+    function animateCounter(element, target, suffix = '') {
+      let current = 0;
+      const increment = target / 60;
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+          current = target;
+          clearInterval(timer);
+        }
+        element.textContent = Math.floor(current) + suffix;
+      }, 16);
+    }
+
+    // Reveal Animations
+    const revealElements = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+
+          // Trigger counter animations for stats
+          if (entry.target.querySelector('.stat-number')) {
+            const statId = entry.target.querySelector('.stat-number span')?.id;
+            if (statId === 'stat1') animateCounter(document.getElementById('stat1'), 2500);
+            if (statId === 'stat2') animateCounter(document.getElementById('stat2'), 15);
+            if (statId === 'stat3') animateCounter(document.getElementById('stat3'), 500);
+            if (statId === 'stat4') animateCounter(document.getElementById('stat4'), 99);
+          }
+        }
+      });
+    }, { threshold: 0.1 });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+
+    // AI Assistant
+    aiTrigger.addEventListener('click', () => {
+      aiPanel.classList.toggle('open');
+    });
+
+    aiClose.addEventListener('click', () => {
+      aiPanel.classList.remove('open');
+    });
+
+    const aiResponses = {
+      pricing: "Our pricing starts at $2,500 for Essential events, $8,500 for Professional, and $25,000+ for Elite tier. Each tier includes progressively more features and support. Would you like me to recommend the best option for your needs?",
+      venues: "We have access to over 500 premium venues worldwide, including historic castles, modern skyscrapers, beachfront resorts, and exclusive private estates. What type of atmosphere are you looking for?",
+      corporate: "Our corporate event services include conferences, product launches, team building retreats, and executive summits. We've managed events for Fortune 500 companies with 99% satisfaction. What's your company size and event goal?",
+      default: "That's a great question! I can help you with event planning, venue selection, pricing information, and timeline management. What specific aspect would you like to explore?"
+    };
+
+    function addMessage(text, isUser = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `ai-message ${isUser ? 'user' : 'bot'}`;
+      messageDiv.textContent = text;
+      aiMessages.appendChild(messageDiv);
+      aiMessages.scrollTop = aiMessages.scrollHeight;
+    }
+
+    function showTyping() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'ai-typing';
+      typingDiv.id = 'typingIndicator';
+      typingDiv.innerHTML = '<span></span><span></span><span></span>';
+      aiMessages.appendChild(typingDiv);
+      aiMessages.scrollTop = aiMessages.scrollHeight;
+    }
+
+    function removeTyping() {
+      const typing = document.getElementById('typingIndicator');
+      if (typing) typing.remove();
+    }
+
+    function processMessage(text) {
+      const lower = text.toLowerCase();
+
+      if (lower.includes('price') || lower.includes('cost') || lower.includes('budget')) {
+        return aiResponses.pricing;
+      } else if (lower.includes('venue') || lower.includes('location') || lower.includes('place')) {
+        return aiResponses.venues;
+      } else if (lower.includes('corporate') || lower.includes('business') || lower.includes('company')) {
+        return aiResponses.corporate;
+      } else if (lower.includes('wedding')) {
+        return "Our luxury wedding services are truly exceptional. We handle everything from intimate ceremonies to grand celebrations, with average budgets ranging from $50,000 to $500,000+. Would you like to see our wedding portfolio?";
+      } else if (lower.includes('festival') || lower.includes('concert') || lower.includes('music')) {
+        return "We've produced festivals with up to 100,000 attendees. Our team handles everything from artist booking to stage design, security, and logistics. Tell me about your vision!";
+      }
+      return aiResponses.default;
+    }
+
+    function sendMessage() {
+      const text = aiInput.value.trim();
+      if (!text) return;
+
+      addMessage(text, true);
+      aiInput.value = '';
+
+      showTyping();
+
+      setTimeout(() => {
+        removeTyping();
+        const response = processMessage(text);
+        addMessage(response);
+      }, 1500);
+    }
+
+    aiSend.addEventListener('click', sendMessage);
+    aiInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    document.querySelectorAll('.ai-quick-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const query = btn.dataset.query;
+        aiInput.value = query.charAt(0).toUpperCase() + query.slice(1) + ' information';
+        sendMessage();
+      });
+    });
+
+    // Testimonials Slider
+    const testimonials = [
+      { quote: "NEXORA transformed our annual conference into an unforgettable experience. The AI-driven insights helped us achieve 40% higher engagement than ever before.", author: "Janindu Samaveera", role: "VP of Marketing, TechCorp Global" },
+      { quote: "Our wedding was beyond anything we imagined. Every detail was perfect, and the team's attention to our vision was extraordinary.", author: "Dewmi Herath", role: "Private Wedding, Paris" },
+      { quote: "The festival NEXORA produced for us broke attendance records. Their technology and creative approach set a new industry standard.", author: "Aneya Bandara", role: "Festival Director, Neon Wave" }
+    ];
+
+    let currentTestimonial = 0;
+    const testimonialQuote = document.getElementById('testimonialQuote');
+    const testimonialAuthor = document.getElementById('testimonialAuthor');
+    const testimonialRole = document.getElementById('testimonialRole');
+
+    function updateTestimonial(index) {
+      currentTestimonial = index;
+      const t = testimonials[index];
+      testimonialQuote.textContent = `"${t.quote}"`;
+      testimonialAuthor.textContent = t.author;
+      testimonialRole.textContent = t.role;
+
+      document.querySelectorAll('.testimonial-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+      });
+    }
+
+    document.querySelectorAll('.testimonial-dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        updateTestimonial(parseInt(dot.dataset.index));
+      });
+    });
+
+    // Auto-rotate testimonials
+    setInterval(() => {
+      updateTestimonial((currentTestimonial + 1) % testimonials.length);
+    }, 5000);
+
+    // Magnetic Buttons
+    if (!prefersReducedMotion) {
+      document.querySelectorAll('.magnetic').forEach(btn => {
+        btn.addEventListener('mousemove', (e) => {
+          const rect = btn.getBoundingClientRect();
+          const x = e.clientX - rect.left - rect.width / 2;
+          const y = e.clientY - rect.top - rect.height / 2;
+          btn.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+        });
+
+        btn.addEventListener('mouseleave', () => {
+          btn.style.transform = '';
+        });
+      });
+    }
+
+    // 3D Tilt Effect for Cards
+    if (!prefersReducedMotion) {
+      document.querySelectorAll('[data-tilt]').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width;
+          const y = (e.clientY - rect.top) / rect.height;
+          const rotateX = (y - 0.5) * 10;
+          const rotateY = (x - 0.5) * -10;
+          card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = '';
+        });
+      });
+    }
+
+    // Smooth Scroll for Nav Links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
